@@ -138,7 +138,10 @@ pub fn apply_text_input_edit(
             editor.action(Action::Drag { x, y });
         }
         TextInputEdit::Scroll { lines } => {
-            editor.action(Action::Scroll { lines });
+            let line_height = editor.with_buffer(|buffer| buffer.metrics().line_height);
+            editor.action(Action::Scroll {
+                pixels: lines as f32 * line_height,
+            });
         }
         TextInputEdit::Paste(text) => {
             if max_chars.is_none_or(|max| editor.with_buffer(buffer_len) + text.len() <= max) {
