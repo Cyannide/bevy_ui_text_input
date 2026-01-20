@@ -60,5 +60,6 @@ cargo run --example text_input
 
 | Bevy      | bevy_ui_text_input |
 |-----------|--------------------|
+| 0.18      | 0.7                |
 | 0.17      | 0.6                |
 | 0.16      | 0.5                |
