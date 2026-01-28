@@ -93,7 +93,7 @@ impl Plugin for TextInputPlugin {
     TextInputStyle,
     TextColor,
     TextInputQueue,
-    LineHeight,
+    LineHeight
 )]
 #[component(
     on_add = on_add_textinputnode,
