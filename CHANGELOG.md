@@ -1,5 +1,9 @@
 ## Changelog
 
+### 0.7.0
+
+* Bevy 0.18 support.
+
 ### 0.6.0
 
 * Bevy 0.17 support.
