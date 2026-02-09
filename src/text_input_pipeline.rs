@@ -34,6 +34,7 @@ use bevy::text::add_glyph_to_atlas;
 use bevy::text::get_glyph_atlas_info;
 use bevy::ui::ComputedNode;
 use cosmic_text;
+use cosmic_text::Attrs;
 use cosmic_text::Buffer;
 use cosmic_text::Edit;
 use cosmic_text::Metrics;
@@ -215,6 +216,24 @@ pub fn text_input_system(
             layout_info.glyphs.clear();
             selection_rects.clear();
 
+            let mut mask_glyph = None;
+            if let Some(mask_char) = input.mask_character {
+                let TextInputPipeline { font_system, .. } = &mut *text_input_pipeline;
+                editor.with_buffer(|buffer| {
+                    let mut mask_buffer = Buffer::new_empty(buffer.metrics());
+                    mask_buffer.set_text(
+                        font_system,
+                        &mask_char.to_string(),
+                        &Attrs::new(),
+                        cosmic_text::Shaping::Basic,
+                        None,
+                    );
+                    if let Some(line) = mask_buffer.layout_runs().next() {
+                        mask_glyph = Some(line.glyphs[0].clone());
+                    }
+                });
+            }
+
             let result = editor.with_buffer_mut(|buffer| {
                 let box_size = buffer_dimensions(buffer);
                 let result = buffer.layout_runs().try_for_each(|run| {
@@ -237,6 +256,19 @@ pub fn text_input_system(
                             let font_id = text_font.font.id();
                             let font_smoothing = text_font.font_smoothing;
 
+                            let mut temp_mask_glyph;
+                            let layout_glyph = if let Some(mask_glyph) = mask_glyph.clone() {
+                                temp_mask_glyph = mask_glyph.clone();
+                                temp_mask_glyph.x = layout_glyph.x;
+                                temp_mask_glyph.y = layout_glyph.y;
+                                temp_mask_glyph.w = layout_glyph.w;
+                                temp_mask_glyph.x_offset = layout_glyph.x_offset;
+                                temp_mask_glyph.y_offset = layout_glyph.y_offset;
+                                temp_mask_glyph.line_height_opt = layout_glyph.line_height_opt;
+                                &temp_mask_glyph
+                            } else {
+                                layout_glyph
+                            };
                             let layout_glyph = if font_smoothing == FontSmoothing::None {
                                 // If font smoothing is disabled, round the glyph positions and sizes,
                                 // effectively discarding all subpixel layout.

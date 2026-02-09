@@ -117,6 +117,8 @@ pub struct TextInputNode {
     pub unfocus_on_submit: bool,
     /// Text justification
     pub justification: Justify,
+    /// Character to mask input with
+    pub mask_character: Option<char>,
 }
 
 impl Default for TextInputNode {
@@ -130,6 +132,7 @@ impl Default for TextInputNode {
             focus_on_pointer_down: true,
             unfocus_on_submit: true,
             justification: Justify::Left,
+            mask_character: None,
         }
     }
 }
