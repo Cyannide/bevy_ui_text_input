@@ -8,7 +8,6 @@ fn main() {
     App::new()
         .add_plugins((DefaultPlugins, TextInputPlugin))
         .add_systems(Startup, setup)
-        .add_systems(Update, update)
         .run();
 }
 
@@ -26,62 +25,68 @@ fn setup(mut commands: Commands, assets: Res<AssetServer>) {
             column_gap: Val::Px(20.),
             ..Default::default()
         })
-        .with_child((
-            TextInputNode {
-                mode: TextInputMode::SingleLine,
-                max_chars: Some(20),
-                clear_on_submit: true,
-                ..Default::default()
-            },
-            TextFont {
-                font: assets.load("fonts/FiraSans-Bold.ttf"),
-                font_size: 25.,
-                ..Default::default()
-            },
-            TextInputPrompt {
-                text: "Username".to_string(),
-                color: Some(Color::srgb(0.3, 0.3, 0.3)),
-                ..Default::default()
-            },
-            Node {
-                width: Val::Px(250.),
-                height: Val::Px(32.),
-                ..default()
-            },
-            BackgroundColor(NAVY.into()),
-        ))
-        .with_child((
-            TextInputNode {
-                mode: TextInputMode::SingleLine,
-                max_chars: Some(20),
-                clear_on_submit: true,
-                mask_character: Some('*'),
-                ..Default::default()
-            },
-            TextFont {
-                font: assets.load("fonts/FiraSans-Bold.ttf"),
-                font_size: 25.,
-                ..Default::default()
-            },
-            TextInputPrompt {
-                text: "Password".to_string(),
-                color: Some(Color::srgb(0.3, 0.3, 0.3)),
-                ..Default::default()
-            },
-            Node {
-                width: Val::Px(250.),
-                height: Val::Px(32.),
-                ..default()
-            },
-            BackgroundColor(NAVY.into()),
-        ))
-        .with_child(Text::new("Login..."));
-}
-
-fn update(mut events: MessageReader<SubmitText>, mut query: Query<&mut Text>) {
-    for event in events.read() {
-        for mut text in query.iter_mut() {
-            text.0 = event.text.clone();
-        }
-    }
+        .with_children(|parent| {
+            parent
+                .spawn((
+                    TextInputNode {
+                        mode: TextInputMode::SingleLine,
+                        max_chars: Some(20),
+                        clear_on_submit: true,
+                        ..Default::default()
+                    },
+                    TextFont {
+                        font: assets.load("fonts/FiraSans-Bold.ttf"),
+                        font_size: 25.,
+                        ..Default::default()
+                    },
+                    TextInputPrompt {
+                        text: "Username".to_string(),
+                        color: Some(Color::srgb(0.3, 0.3, 0.3)),
+                        ..Default::default()
+                    },
+                    Node {
+                        width: Val::Px(250.),
+                        height: Val::Px(32.),
+                        ..default()
+                    },
+                    BackgroundColor(NAVY.into()),
+                ))
+                .observe(|event: On<SubmitText>, mut query: Query<&mut Text>| {
+                    for mut text in query.iter_mut() {
+                        text.0 = event.text.clone();
+                    }
+                });
+            parent
+                .spawn((
+                    TextInputNode {
+                        mode: TextInputMode::SingleLine,
+                        max_chars: Some(20),
+                        clear_on_submit: true,
+                        mask_character: Some('*'),
+                        ..Default::default()
+                    },
+                    TextFont {
+                        font: assets.load("fonts/FiraSans-Bold.ttf"),
+                        font_size: 25.,
+                        ..Default::default()
+                    },
+                    TextInputPrompt {
+                        text: "Password".to_string(),
+                        color: Some(Color::srgb(0.3, 0.3, 0.3)),
+                        ..Default::default()
+                    },
+                    Node {
+                        width: Val::Px(250.),
+                        height: Val::Px(32.),
+                        ..default()
+                    },
+                    BackgroundColor(NAVY.into()),
+                ))
+                .observe(|event: On<SubmitText>, mut query: Query<&mut Text>| {
+                    for mut text in query.iter_mut() {
+                        text.0 = event.text.clone();
+                    }
+                });
+            parent.spawn(Text::new("Login..."));
+        });
 }

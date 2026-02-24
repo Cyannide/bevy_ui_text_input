@@ -14,6 +14,7 @@ use bevy::color::palettes::css::SKY_BLUE;
 use bevy::color::palettes::tailwind::GRAY_400;
 use bevy::ecs::component::Component;
 use bevy::ecs::entity::Entity;
+use bevy::ecs::event::EntityEvent;
 use bevy::ecs::lifecycle::HookContext;
 use bevy::ecs::message::Message;
 use bevy::ecs::observer::Observer;
@@ -161,7 +162,7 @@ fn on_remove_unfocus(mut world: DeferredWorld, context: HookContext) {
 pub type TextSubmitEvent = SubmitText;
 
 /// Sent when a text input submits its text
-#[derive(Message)]
+#[derive(Message, EntityEvent)]
 pub struct SubmitText {
     /// The text input entity that submitted the text
     pub entity: Entity,

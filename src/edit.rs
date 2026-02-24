@@ -614,6 +614,7 @@ pub fn process_text_input_queues(
     mut text_input_pipeline: ResMut<TextInputPipeline>,
     mut submit_writer: MessageWriter<SubmitText>,
     mut clipboard: ResMut<Clipboard>,
+    mut commands: Commands,
 ) {
     let font_system = &mut text_input_pipeline.font_system;
 
@@ -630,7 +631,13 @@ pub fn process_text_input_queues(
             match action {
                 TextInputAction::Submit => {
                     let text = editor.with_buffer(crate::get_text);
-                    submit_writer.write(SubmitText { entity, text });
+                    submit_writer.write(SubmitText {
+                        entity,
+                        text: text.clone(),
+                    });
+                    commands
+                        .entity(entity)
+                        .trigger(|entity| SubmitText { entity, text });
                     if node.clear_on_submit {
                         actions_queue.add_front(TextInputAction::Edit(TextInputEdit::Delete));
                         actions_queue.add_front(TextInputAction::Edit(TextInputEdit::SelectAll));
