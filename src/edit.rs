@@ -695,10 +695,22 @@ pub fn process_text_input_queues(
             }
         }
         if buffer_changed && let Some(mask_char) = node.mask_character {
-            let len = editor.with_buffer(buffer_len);
+            let mask = editor.with_buffer(|buffer| {
+                buffer
+                    .lines
+                    .iter()
+                    .map(|buffer_line| buffer_line.text())
+                    .fold(String::new(), |mut out, line| {
+                        if !out.is_empty() {
+                            out.push('\n');
+                        }
+                        out.push_str(&String::from_iter(std::iter::repeat_n(&mask_char, line.len())));
+                        out
+                    })
+            });
             mask_buffer.set_text(
                 font_system,
-                &String::from_iter(std::iter::repeat_n(&mask_char, len)),
+                &mask,
                 &Attrs::new(),
                 cosmic_text::Shaping::Advanced,
                 None,
